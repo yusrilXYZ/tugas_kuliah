@@ -1,0 +1,148 @@
+postgres=# CREATE DATABASE Perpustakaan;
+CREATE DATABASE
+postgres=#
+postgres=# -- Setelah itu pindah ke database baru:
+postgres=# -- \c Perpustakaan
+postgres=#
+postgres=# -- 2. Membuat tabel
+postgres=#
+postgres=# -- Tabel: Buku
+postgres=# CREATE TABLE Buku (
+postgres(#     id_buku SERIAL PRIMARY KEY,
+postgres(#     judul VARCHAR(255) NOT NULL,
+postgres(#     penulis VARCHAR(100),
+postgres(#     tahun_terbit INT,
+postgres(#     kategori VARCHAR(100)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# -- Tabel: Anggota
+postgres=# CREATE TABLE Anggota (
+postgres(#     id_anggota SERIAL PRIMARY KEY,
+postgres(#     nama VARCHAR(100) NOT NULL,
+postgres(#     alamat TEXT,
+postgres(#     nomor_telepon VARCHAR(15)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# -- Tabel: Peminjaman
+postgres=# CREATE TABLE Peminjaman (
+postgres(#     id_peminjaman SERIAL PRIMARY KEY,
+postgres(#     id_buku INT,
+postgres(#     id_anggota INT,
+postgres(#     tanggal_pinjam DATE DEFAULT CURRENT_DATE,
+postgres(#     tanggal_kembali DATE,
+postgres(#     status VARCHAR(20) DEFAULT 'Dipinjam',
+postgres(#     FOREIGN KEY (id_buku) REFERENCES Buku(id_buku),
+postgres(#     FOREIGN KEY (id_anggota) REFERENCES Anggota(id_anggota)
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# -- 3. Insert Data Dummy
+postgres=#
+postgres=# -- Masukkan data buku
+postgres=# INSERT INTO Buku (judul, penulis, tahun_terbit, kategori)
+postgres-# VALUES
+postgres-# ('Belajar SQL', 'Andi Saputra', 2022, 'Teknologi'),
+postgres-# ('Dasar-Dasar Database', 'Siti Aminah', 2021, 'Teknologi');
+INSERT 0 2
+postgres=#
+postgres=# -- Masukkan data anggota
+postgres=# INSERT INTO Anggota (nama, alamat, nomor_telepon)
+postgres-# VALUES
+postgres-# ('Budi Santoso', 'Jl. Merdeka No. 10', '081234567890'),
+postgres-# ('Rina Putri', 'Jl. Pahlawan No. 5', '081234567891');
+INSERT 0 2
+postgres=#
+postgres=# -- Masukkan data peminjaman
+postgres=# INSERT INTO Peminjaman (id_buku, id_anggota, tanggal_pinjam, tanggal_kembali, status)
+postgres-# VALUES
+postgres-# (1, 1, '2024-10-20', '2024-10-27', 'Dikembalikan'),
+postgres-# (2, 2, '2024-10-25', NULL, 'Dipinjam');
+INSERT 0 2
+postgres=#
+postgres=# -- 4. Tampilkan Semua Tabel
+postgres=#
+postgres=# -- Tampilkan semua buku
+postgres=# SELECT * FROM Buku;
+ id_buku |        judul         |   penulis    | tahun_terbit | kategori
+---------+----------------------+--------------+--------------+-----------
+       1 | Belajar SQL          | Andi Saputra |         2022 | Teknologi
+       2 | Dasar-Dasar Database | Siti Aminah  |         2021 | Teknologi
+(2 rows)
+
+
+postgres=#
+postgres=# -- Tampilkan semua anggota
+postgres=# SELECT * FROM Anggota;
+ id_anggota |     nama     |       alamat       | nomor_telepon
+------------+--------------+--------------------+---------------
+          1 | Budi Santoso | Jl. Merdeka No. 10 | 081234567890
+          2 | Rina Putri   | Jl. Pahlawan No. 5 | 081234567891
+(2 rows)
+
+
+postgres=#
+postgres=# -- Tampilkan semua peminjaman
+postgres=# SELECT * FROM Peminjaman;
+ id_peminjaman | id_buku | id_anggota | tanggal_pinjam | tanggal_kembali |    status
+---------------+---------+------------+----------------+-----------------+--------------
+             1 |       1 |          1 | 2024-10-20     | 2024-10-27      | Dikembalikan
+             2 |       2 |          2 | 2024-10-25     |                 | Dipinjam
+(2 rows)
+
+
+postgres=#
+postgres=# -- 5. Update Data
+postgres=#
+postgres=# -- Ubah judul buku dengan id_buku = 1
+postgres=# UPDATE Buku
+postgres-# SET judul = 'SQL Untuk Pemula'
+postgres-# WHERE id_buku = 1;
+UPDATE 1
+postgres=#
+postgres=# -- Tampilkan hasil update
+postgres=# SELECT * FROM Buku WHERE id_buku = 1;
+ id_buku |      judul       |   penulis    | tahun_terbit | kategori
+---------+------------------+--------------+--------------+-----------
+       1 | SQL Untuk Pemula | Andi Saputra |         2022 | Teknologi
+(1 row)
+
+
+postgres=#
+postgres=# -- 6. Delete Data
+postgres=#
+postgres=# -- Hapus peminjaman dengan id_peminjaman = 2
+postgres=# DELETE FROM Peminjaman
+postgres-# WHERE id_peminjaman = 2;
+DELETE 1
+postgres=#
+postgres=# -- Tampilkan hasil delete
+postgres=# SELECT * FROM Peminjaman;
+ id_peminjaman | id_buku | id_anggota | tanggal_pinjam | tanggal_kembali |    status
+---------------+---------+------------+----------------+-----------------+--------------
+             1 |       1 |          1 | 2024-10-20     | 2024-10-27      | Dikembalikan
+(1 row)
+
+
+postgres=#
+postgres=# -- 7. Query Gabungan (JOIN)
+postgres=#
+postgres=# -- Tampilkan semua peminjaman dengan detail buku & anggota
+postgres=# SELECT
+postgres-#     p.id_peminjaman,
+postgres-#     b.judul AS judul_buku,
+postgres-#     a.nama AS nama_anggota,
+postgres-#     p.tanggal_pinjam,
+postgres-#     p.tanggal_kembali,
+postgres-#     p.status
+postgres-# FROM Peminjaman p
+postgres-# JOIN Buku b ON p.id_buku = b.id_buku
+postgres-# JOIN Anggota a ON p.id_anggota = a.id_anggota;
+ id_peminjaman |    judul_buku    | nama_anggota | tanggal_pinjam | tanggal_kembali |    status
+---------------+------------------+--------------+----------------+-----------------+--------------
+             1 | SQL Untuk Pemula | Budi Santoso | 2024-10-20     | 2024-10-27      | Dikembalikan
+(1 row)
+
+
+postgres=#
